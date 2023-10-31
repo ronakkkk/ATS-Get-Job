@@ -70,7 +70,9 @@ def upload_resume(request):
 
 def index(request):
     return render(request, "index.html")
-
+@csrf_exempt
+def signUpUser(request):
+    return render(request, "signup.html")
 @csrf_exempt
 def create_user(request):
     if request.method == 'POST':
@@ -87,9 +89,7 @@ def create_user(request):
 
         user = CustomUser.objects.create_user(email=email, full_name=full_name, password=password)
         user.save()
-        return JsonResponse({'message': 'User created successfully'})
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+        return render(request, "upload_resume.html")
 
 def checkUserDetails(request):
     emailID = request.POST.get("email_id")

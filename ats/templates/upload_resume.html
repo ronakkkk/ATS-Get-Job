@@ -2,15 +2,90 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .header {
+            background-color: #5753b5;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .upload-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .upload-container h1 {
+            margin-bottom: 20px;
+        }
+
+        .upload-input {
+            margin-bottom: 20px;
+        }
+
+        .upload-input input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            cursor: pointer;
+            background-color: #5753b5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #5753b5;
+        }
+    </style>
 </head>
 <body>
-yo upload resume
-    <form method="post" action="uploadS3" enctype="multipart/form-data">
-        <label for="resume">Choose Resume:</label>
-        <input type="file" id="resume" name="resume">
-    
-        <button type="submit">Upload</button>
+    <div class="header">
+        <h1>ATS - Get Job</h1>
+    </div>
+     <form method="post" action="uploadS3" enctype="multipart/form-data">
+        <div class="upload-container">
+            <h1>Upload Your Resume</h1>
+            <p id="file-name"></p>
+            <div class="upload-input">
+                <label for="resume" class="custom-file-upload">Choose File</label>
+                <input type="file" id="resume" name="resume" onchange="displayFileName()">
+            </div>
+
+            <button type="submit" class="custom-file-upload">Upload</button>
+        </div>
     </form>
+    <script>
+        function displayFileName() {
+            const input = document.getElementById("resume");
+            const fileNameDisplay = document.getElementById("file-name");
+
+            if (input.files.length > 0) {
+                fileNameDisplay.textContent = "Selected File: " + input.files[0].name;
+            } else {
+                fileNameDisplay.textContent = ""; // Clear the display if no file is selected
+            }
+        }
+    </script>
 </body>
 </html>

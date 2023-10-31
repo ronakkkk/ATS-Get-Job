@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ATS - Get Jobs Login</title>
+    <title>ATS - Get Jobs Sign Up</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,7 +24,7 @@
             width: 100%;
         }
 
-        .login-container {
+        .signup-container {
             background-color: #ffffff;
             padding: 40px;
             border-radius: 10px;
@@ -48,7 +48,7 @@
             box-sizing: border-box;
         }
 
-        .login-btn {
+        .signup-btn {
             width: 100%;
             background-color: #5753b5;
             color: white;
@@ -60,17 +60,17 @@
             transition: background-color 0.3s ease;
         }
 
-        .login-btn:hover {
+        .signup-btn:hover {
             background-color: #45a049;
         }
 
-        .signup-link {
+        .login-link {
             margin-top: 20px;
             font-size: 14px;
             color: #333;
         }
 
-        .signup-link a {
+        .login-link a {
             color: #4caf50;
             text-decoration: none;
         }
@@ -80,23 +80,60 @@
     <div class="header">
         <h1>ATS - Get Job</h1>
     </div>
-    <div class="login-container">
-        <h2>Login</h2>
-        <form action="checkUserDetails" method="post">
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <form action="create_user" method="post">
             {% csrf_token %}
             <div class="input-group">
-                <input type="email" placeholder="Email ID" id="email_id" name="email_id" required>
+                <input type="text" placeholder="Full Name" id="full_name" name="full_name" required>
+            </div>
+            <div class="input-group">
+                <input type="email" placeholder="Email ID" id="email" name="email" required>
             </div>
             <div class="input-group">
                 <input type="password" placeholder="Password" id="password" name="password" required>
             </div>
-            <button class="login-btn">Login</button>
+            <button class="signup-btn">Sign Up</button>
         </form>
-        <form action="signUpUser" method="post">
-            <div class="signup-link">
-                <p>Don't have an account? <button>Sign Up</button></p>
+        <form method="post" action="">
+            <div class="login-link">
+                <p>Already have an account? <button>Login</button></p>
             </div>
         </form>
     </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>User created successfully!</p>
+        </div>
+    </div>
+
+    <script>
+        // Get the modal
+        var modal = document.getElementById("successModal");
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the page is loaded, show the modal if it is present
+        window.onload = function() {
+            if (modal) {
+                modal.style.display = "block";
+            }
+        };
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
+        };
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    </script>
 </body>
 </html>

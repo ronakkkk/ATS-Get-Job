@@ -8,8 +8,10 @@ router = DefaultRouter()
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path("login", views.index, name="index"),
     path('admin/', admin.site.urls),
     path('checkUserDetails', views.checkUserDetails, name="Check Data"),
+    path('signUpUser', views.signUpUser, name="Sign Up"),
     path('create_user', views.create_user, name="Insert Login Data"),
     path('upload_resume/', views.upload_resume , name='upload_resume'),
     path('upload_resume/uploadS3', views.upload_to_s3 , name='uploadS3'),
