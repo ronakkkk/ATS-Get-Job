@@ -112,11 +112,39 @@ def checkUserDetails(request):
             return render(request, "index.html", {
             "message": "Invalid username and/or password."
         })
-    # if emailID == "r@g.com" and password == "123":        
-    #     print("Matched")
-    #     return render(request, "upload_resume.html")
-    # else:
-    #     return render(request, "index.html", {
-    #         "message": "Invalid username and/or password."
-    #     })
+
+@csrf_exempt
+def getJobs(request):
+    country = 'us'
+    per_page = '50'
+    title = 'Software Engineer'
+    full_time = 1 # 1 for yes 
+    #part_time = 1 # 1 for yes
+    skills = 'python, java, C++, SQL, HTML, CSS' 
+    last_posted = '7' #last 7 days job posted
+    APP_ID = '04e67ef5'
+    API_KEY = '3c6fede16b773e46bf1aff00f481cbb5'
+    BASE_URL = f'https://api.adzuna.com/v1/api/jobs/{country}'
+    BASE_PARAMS = f'search/1?&app_id={APP_ID}&app_key={API_KEY}&'
+    url = f'https://api.adzuna.com/v1/api/jobs/{country}/search/1'
+    params = {
+        'app_id': APP_ID,
+        'app_key': API_KEY,
+        'results_per_page': per_page,
+        'title_only': title,
+        'sort_by': 'relevance',
+        'what_or': skills,
+        'max_days_old': {last_posted},
+        # 'content-type': 'application/json'
+    }
+
+    headers = {
+        'Accept': 'application/json'
+    }
+
+    response = requests.get(url, params=params, headers=headers)
+
+    data = json.loads(response.text)
+
+    print(data)
     
