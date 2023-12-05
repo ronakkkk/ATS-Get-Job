@@ -14,6 +14,7 @@ from ats.models import CustomUser
 from django.conf import settings
 from .models import Upload
 import boto3
+from . import resume_parse
 
 # Connect to S3 
 # s3 = boto3.client(
@@ -40,25 +41,6 @@ def get_s3_file(request):
             return JsonResponse({'error': "Resume Not Found"})
     except requests.exceptions.RequestException as e:
         return JsonResponse({'error': str(e)})
-
-
-@csrf_exempt
-def upload_to_s3(request):
-    if request.method == 'POST':
-
-        file = request.FILES['resume']
-        # Get file info
-        email = request.COOKIES.get('email')
-        user = CustomUser.objects.get(email=email)
-        file.name = str(user.id)+".pdf"
-        print(file.name)
-        print(email)
-        # Build unique key using email 
-        # key = f'{email}/resume.pdf'
-        upload = Upload(file=file)
-        upload.save()   
-        resume_url = upload.file.url
-        return JsonResponse({'resumeUrl': resume_url, 'message': 'Success'})
 
 # from django.contrib.auth.models import User
 # from .models import User
@@ -114,13 +96,42 @@ def checkUserDetails(request):
         })
 
 @csrf_exempt
-def getJobs(request):
+def upload_to_s3(request):
+    if request.method == 'POST':
+        file = request.FILES['resume']
+        # Get file info
+        email = request.COOKIES.get('email')
+        user = CustomUser.objects.get(email=email)
+        file.name = str(user.id)+".pdf"
+        print(file.name)
+        print(email)
+        # Build unique key using email
+        # key = f'{email}/resume.pdf'
+        upload = Upload(file=file)
+        upload.save()
+        resume_url = upload.file.url
+        # return JsonResponse({'resumeUrl': resume_url, 'message': 'Success'})
+        return getJobs(request, resume_url)
+@csrf_exempt
+def extract_resume(resume_url):
+    skills = resume_parse.resume_screening(resume_url)
+    s = ""
+    for i in skills:
+        s += i+", "
+
+    return s[:-2]
+
+@csrf_exempt
+def getJobs(request, resume_url):
+    # parse resume
+    skills = extract_resume(resume_url)
+    # print(skills)
     country = 'us'
     per_page = '50'
     title = 'IT'
     full_time = 1 # 1 for yes 
     #part_time = 1 # 1 for yes
-    skills = 'python, java, C++, SQL, HTML, CSS, AWS, django'
+    # skills = 'python, java, C++, SQL, HTML, CSS, AWS, django'
     last_posted = '30' #last 7 days job posted
     APP_ID = '04e67ef5'
     API_KEY = '3c6fede16b773e46bf1aff00f481cbb5'
@@ -150,7 +161,6 @@ def getJobs(request):
     # Drop duplicate rows based on the 'title' column
     df_unique = df.drop_duplicates(subset='title', keep='first')
 
-    # Create a list of dictionaries for each unique job
     job_list = []
     for _, row in df_unique.iterrows():
         job_info = {
