@@ -9,7 +9,7 @@ import requests
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-
+import pandas
 from ats.models import CustomUser
 from django.conf import settings
 from .models import Upload
@@ -117,11 +117,11 @@ def checkUserDetails(request):
 def getJobs(request):
     country = 'us'
     per_page = '50'
-    title = 'Software Engineer'
+    title = 'IT'
     full_time = 1 # 1 for yes 
     #part_time = 1 # 1 for yes
-    skills = 'python, java, C++, SQL, HTML, CSS' 
-    last_posted = '7' #last 7 days job posted
+    skills = 'python, java, C++, SQL, HTML, CSS, AWS, django'
+    last_posted = '30' #last 7 days job posted
     APP_ID = '04e67ef5'
     API_KEY = '3c6fede16b773e46bf1aff00f481cbb5'
     BASE_URL = f'https://api.adzuna.com/v1/api/jobs/{country}'
@@ -146,5 +146,20 @@ def getJobs(request):
 
     data = json.loads(response.text)
 
-    print(data)
-    
+    df = pandas.json_normalize(data, 'results')
+    # Drop duplicate rows based on the 'title' column
+    df_unique = df.drop_duplicates(subset='title', keep='first')
+
+    # Create a list of dictionaries for each unique job
+    job_list = []
+    for _, row in df_unique.iterrows():
+        job_info = {
+            'title': row['title'],
+            'company_name': row['company.display_name'],
+            'description': row['description'],
+            'redirect_url': row['redirect_url']
+        }
+        job_list.append(job_info)
+
+    context = {'df_html': job_list}
+    return render(request, 'companies_recommendation.html', context)

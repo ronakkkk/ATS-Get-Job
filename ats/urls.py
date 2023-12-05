@@ -16,7 +16,6 @@ urlpatterns = [
     path('upload_resume/', views.upload_resume , name='upload_resume'),
     path('upload_resume/uploadS3', views.upload_to_s3 , name='uploadS3'),
     path('upload_resume/getResume', views.get_s3_file , name='getResumeFromS3'),
-    path('getJobs', views.getJobs , name='getJobs'),
+    path('getJobs', views.getJobs, name='getJobs'),
     path('', include(router.urls)),
-    
 ]
