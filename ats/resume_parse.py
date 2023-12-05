@@ -216,4 +216,4 @@ def resume_screening(file):
     # # percent_match_applicants.append(record)
     # # return percentage_match
     # # Print the match percentage
-    return resume_skills
+    return resume_skills, resume_text

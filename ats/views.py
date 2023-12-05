@@ -15,6 +15,9 @@ from django.conf import settings
 from .models import Upload
 import boto3
 from . import resume_parse
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+
 
 # Connect to S3 
 # s3 = boto3.client(
@@ -112,19 +115,30 @@ def upload_to_s3(request):
         resume_url = upload.file.url
         # return JsonResponse({'resumeUrl': resume_url, 'message': 'Success'})
         return getJobs(request, resume_url)
+
+def calculate_cosine_similarity(train_df, resume_text):
+    tfidf_vectorizer = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = tfidf_vectorizer.fit_transform(train_df["description"])
+
+    resume_tfidf_vector = tfidf_vectorizer.transform([resume_text])
+
+    cosine_similarities = linear_kernel(resume_tfidf_vector, tfidf_matrix).flatten()
+    train_df["cosine_similarity"] = cosine_similarities
+    return train_df.nlargest(10, "cosine_similarity")
+
 @csrf_exempt
 def extract_resume(resume_url):
-    skills = resume_parse.resume_screening(resume_url)
+    skills, resume_txt = resume_parse.resume_screening(resume_url)
     s = ""
     for i in skills:
         s += i+", "
 
-    return s[:-2]
+    return s[:-2], resume_txt
 
 @csrf_exempt
 def getJobs(request, resume_url):
     # parse resume
-    skills = extract_resume(resume_url)
+    skills, resume_txt = extract_resume(resume_url)
     # print(skills)
     country = 'us'
     per_page = '50'
@@ -146,7 +160,6 @@ def getJobs(request, resume_url):
         'sort_by': 'relevance',
         'what_or': skills,
         'max_days_old': {last_posted},
-        # 'content-type': 'application/json'
     }
 
     headers = {
@@ -158,8 +171,12 @@ def getJobs(request, resume_url):
     data = json.loads(response.text)
 
     df = pandas.json_normalize(data, 'results')
+
     # Drop duplicate rows based on the 'title' column
     df_unique = df.drop_duplicates(subset='title', keep='first')
+
+    # get top 10 jobs
+    df_unique = calculate_cosine_similarity(df_unique, resume_txt)
 
     job_list = []
     for _, row in df_unique.iterrows():
