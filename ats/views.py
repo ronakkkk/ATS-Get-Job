@@ -17,7 +17,8 @@ import boto3
 from . import resume_parse
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-
+from . import gpt_key
+import openai
 
 # Connect to S3 
 # s3 = boto3.client(
@@ -26,6 +27,13 @@ from sklearn.metrics.pairwise import linear_kernel
 #    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
 # )
 
+class resumeUser:
+    id = None
+    resume_txt = None
+    resume_skill = None
+    jobs = None
+
+resume_user = resumeUser()
 @csrf_exempt
 def get_s3_file(request):
     email = request.COOKIES.get('email')
@@ -69,6 +77,9 @@ def create_user(request):
         print(email)
         print(full_name)
         print(password)
+        # resume user define
+        global resume_user
+        resume_user.id = email
         if not (email and full_name and password):
             return JsonResponse({'error': 'Missing required data'}, status=400)
 
@@ -113,8 +124,13 @@ def upload_to_s3(request):
         upload = Upload(file=file)
         upload.save()
         resume_url = upload.file.url
+
+        # get job details
+        loc = request.POST.get('location')
+        job_title = request.POST.get('job_title')
+        last_posted = request.POST.get('last_posted')
         # return JsonResponse({'resumeUrl': resume_url, 'message': 'Success'})
-        return getJobs(request, resume_url)
+        return getJobs(request, resume_url, loc, job_title, last_posted)
 
 def calculate_cosine_similarity(train_df, resume_text):
     tfidf_vectorizer = TfidfVectorizer(stop_words='english')
@@ -136,17 +152,21 @@ def extract_resume(resume_url):
     return s[:-2], resume_txt
 
 @csrf_exempt
-def getJobs(request, resume_url):
+def getJobs(request, resume_url, loc, job_title, last_posted):
+    print(loc, job_title, last_posted)
     # parse resume
     skills, resume_txt = extract_resume(resume_url)
+    global resume_user
+    resume_user.skill = skills
+    resume_user.resume_txt = resume_txt
     # print(skills)
-    country = 'us'
+    country = loc
     per_page = '50'
-    title = 'IT'
+    title = job_title
     full_time = 1 # 1 for yes 
     #part_time = 1 # 1 for yes
     # skills = 'python, java, C++, SQL, HTML, CSS, AWS, django'
-    last_posted = '30' #last 7 days job posted
+    last_posted = last_posted #last 7 days job posted
     APP_ID = '04e67ef5'
     API_KEY = '3c6fede16b773e46bf1aff00f481cbb5'
     BASE_URL = f'https://api.adzuna.com/v1/api/jobs/{country}'
@@ -190,3 +210,61 @@ def getJobs(request, resume_url):
 
     context = {'df_html': job_list}
     return render(request, 'companies_recommendation.html', context)
+
+
+def process_response(response):
+    # Split the response into Score and Missing Skills sections
+    sections = response.split('Missing Skills:')
+
+    # Process the Score section
+    score_section = sections[0].strip()
+    score_lines = score_section.split('\n')[1:]  # Exclude the first line ("Score: 0")
+    relevance_scores = []
+
+    for line in score_lines:
+        parts = line.split(':')
+        if len(parts) == 2:
+            skill, score = map(str.strip, parts)
+            relevance_scores.append({"skill": skill, "score": f"{score}"})
+
+    # Process the Missing Skills section
+    missing_skills_section = sections[1].strip() if len(sections) > 1 else ""
+    missing_skills = [skill.strip() for skill in missing_skills_section.split(';') if skill.strip()]
+
+    # Combine the processed sections into the final list
+    result_list = [{"type": "relevance_score", "data": relevance_scores},
+                   {"type": "missing_skills", "data": missing_skills}]
+
+    return result_list
+
+
+openai.api_key = gpt_key.api_key
+@csrf_exempt
+def compare_resume(request):
+    if request.method == 'POST':
+        print("hello")
+        job_desc = request.POST.get('job_description')
+        job_url = request.POST.get('job_url')
+        global resume_user
+        resume_txt = resume_user.resume_txt
+        prompt = f"Compare the skills and qualifications in the provided resume text with the following job description. Assign a score based on the relevance of skills. Identify any missing skills in the resume.\n\n" \
+                 f"Resume Text:\n{resume_txt}\n\n" \
+                 f"Job Description:\n{job_desc}"
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=prompt,
+            max_tokens=1024,
+            n=1,
+            stop=None,
+            temperature=0.2,
+        ).choices[0].text
+        print(job_url)
+        # print(response)
+        # response = process_response(response)
+
+        api_result = process_response(response)
+        print(api_result)
+        # You can customize this part based on your needs
+        return render(request, 'compare_resume_prompt.html', {'api_result': api_result, 'job_url': job_url})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})

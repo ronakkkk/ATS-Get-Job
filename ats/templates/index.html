@@ -8,7 +8,10 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-image: url('{% static "new-job.jpg" %}');  /* Replace 'path/to/your/image.jpg' with the actual path to your image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -17,9 +20,9 @@
         }
 
         .header {
-            background-color: #5753b5;
+            background-color: #13274F;
             color: white;
-            padding: 10px 0;
+            padding: 20px 0;
             text-align: center;
             width: 100%;
         }
@@ -28,10 +31,15 @@
             background-color: #ffffff;
             padding: 40px;
             border-radius: 10px;
-            box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
             text-align: center;
             width: 300px;
             margin-top: 20px;
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+            color: #5753b5;
         }
 
         .input-group {
@@ -46,11 +54,16 @@
             border-radius: 5px;
             margin-top: 10px;
             box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #5753b5;
         }
 
         .login-btn {
             width: 100%;
-            background-color: #5753b5;
+            background-color: #13274F;
             color: white;
             padding: 12px;
             border: none;
@@ -61,7 +74,7 @@
         }
 
         .login-btn:hover {
-            background-color: #45a049;
+            background-color: #494577;
         }
 
         .signup-link {
@@ -70,9 +83,21 @@
             color: #333;
         }
 
-        .signup-link a {
-            color: #4caf50;
-            text-decoration: none;
+        .signup-link p {
+            margin: 0;
+        }
+
+        .signup-link button {
+            background: none;
+            border: none;
+            color: #5753b5;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 14px;
+        }
+
+        .signup-link button:hover {
+            color: #494577;
         }
     </style>
 </head>

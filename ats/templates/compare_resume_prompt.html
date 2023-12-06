@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ATS</title>
+</head>
+<body>
+    <div class="modal-header">
+        <h5 class="modal-title">Comparison Result</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        {% for item in api_result %}
+            {% if item.type == "relevance_score" %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Relevance Score</h5>
+                        {% for score_item in item.data %}
+                            <p class="card-text">{{ score_item.skill }}: {{ score_item.score }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% elif item.type == "missing_skills" %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Missing Skills</h5>
+                        {% for skill in item.data %}
+                            <p class="card-text">{{ skill }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+    <div class="modal-footer">
+        <a href={{ job_url }} class="btn btn-success">Apply</a>
+        <button type="button" class="btn btn-secondary" onclick="btnCancel()" data-dismiss="modal">Cancel</button>
+    </div>
+    <script>
+        function btnCancel(){
+            debugger;
+            document.getElementById("myModal").querySelector(".modal-content").innerHTML = "";
+            // Hide the modal
+            $('#myModal').modal('hide');
+        }
+    </script>
+</body>
+</html>

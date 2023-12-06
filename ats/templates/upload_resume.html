@@ -16,7 +16,7 @@
         }
 
         .header {
-            background-color: #5753b5;
+            background-color: #13274F;
             color: white;
             padding: 10px 0;
             text-align: center;
@@ -30,23 +30,41 @@
             padding: 40px;
             text-align: center;
             margin-top: 20px;
+            max-width: 500px; /* Adjust the maximum width as needed */
+            margin: auto; /* Center the container */
         }
 
         .upload-container h1 {
             margin-bottom: 20px;
+            color: #5753b5; /* Match the header color */
         }
 
         .upload-input {
             margin-bottom: 20px;
+            text-align: left; /* Align text to the left within input containers */
         }
 
+        .upload-input label {
+            display: block;
+            margin-bottom: 5px;
+            color: #5753b5; /* Match the header color */
+        }
+
+        .upload-input input[type="text"],
+        .upload-input input[type="number"],
         .upload-input input[type="file"] {
-            display: none;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 16px;
         }
 
         .custom-file-upload {
             cursor: pointer;
-            background-color: #5753b5;
+            background-color: #13274F;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -55,8 +73,39 @@
         }
 
         .custom-file-upload:hover {
-            background-color: #5753b5;
+            background-color: #494577; /* Darken the color on hover */
         }
+
+        #file-name {
+            font-style: italic;
+            color: #555;
+        }
+        /* Custom styling for the file input */
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-button {
+            background-color: #5753b5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-input {
+            position: absolute;
+            font-size: 100px;
+            right: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 <body>
@@ -65,16 +114,39 @@
     </div>
      <form method="post" action="uploadS3" enctype="multipart/form-data">
         <div class="upload-container">
-            <h1>Upload Your Resume</h1>
-            <p id="file-name"></p>
+            <h1>Add Job Search Details</h1>
+
+            <!-- Location -->
             <div class="upload-input">
-                <label for="resume" class="custom-file-upload">Choose File</label>
-                <input type="file" id="resume" name="resume" onchange="displayFileName()">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" required>
             </div>
 
-            <button type="submit" class="custom-file-upload">Upload</button>
+            <!-- Job Title -->
+            <div class="upload-input">
+                <label for="job_title">Job Title:</label>
+                <input type="text" id="job_title" name="job_title" required>
+            </div>
+
+            <!-- Last Posted in Days -->
+            <div class="upload-input">
+                <label for="last_posted">Last Posted in Days:</label>
+                <input type="number" id="last_posted" name="last_posted" required>
+            </div>
+
+            <!-- Resume File -->
+
+            <p id="file-name"></p>
+            <div class="upload-input">
+                <label for="resume">Upload Resume</label>
+                <input type="file" class="custom-file-upload" id="resume" name="resume" onchange="displayFileName()" required>
+            </div>
+
+            <!-- Upload Button -->
+            <button type="submit" class="custom-file-upload">Show Jobs</button>
         </div>
     </form>
+
     <script>
         function displayFileName() {
             const input = document.getElementById("resume");
