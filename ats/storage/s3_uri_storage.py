@@ -10,3 +10,8 @@ class PublicResumeStorage(S3Boto3Storage):
     location = 'resumes'
     default_acl = 'public-read'
     file_overwrite = True
+
+class TrainingDataCSV(S3Boto3Storage):
+    location = 'trainingdatajobscsv'
+    default_acl = 'public-read'
+    file_overwrite = True

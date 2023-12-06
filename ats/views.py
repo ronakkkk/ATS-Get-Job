@@ -150,6 +150,18 @@ def extract_resume(resume_url):
         s += i+", "
 
     return s[:-2], resume_txt
+import io
+
+#added for uploading the df as csv to S3
+def upload_df_to_s3(df, bucket, key):
+    try:
+        csv_buffer = df.to_csv(index=False).encode('utf-8')
+        s3_client = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID, aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+        s3_client.put_object(Body=csv_buffer, Bucket=bucket, Key=key)
+        print(f"Successfully uploaded DataFrame to S3: s3://{bucket}/{key}")
+    except Exception as e:
+        print(f"Error uploading DataFrame to S3: {str(e)}")
+
 
 @csrf_exempt
 def getJobs(request, resume_url, loc, job_title, last_posted):
@@ -194,6 +206,11 @@ def getJobs(request, resume_url, loc, job_title, last_posted):
 
     # Drop duplicate rows based on the 'title' column
     df_unique = df.drop_duplicates(subset='title', keep='first')
+
+    # Upload df_unique to S3 as CSV - added by jinay
+    s3_bucket = 'userresumes'
+    s3_key = 'path/to/your/training_data.csv'
+    upload_df_to_s3(df_unique, s3_bucket, s3_key)
 
     # get top 10 jobs
     df_unique = calculate_cosine_similarity(df_unique, resume_txt)
