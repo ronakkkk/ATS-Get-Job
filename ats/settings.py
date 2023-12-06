@@ -158,14 +158,14 @@ DATABASES = {
         'NAME': 'backendusers',
         'USER': 'postgres',
         'PASSWORD': 'postgres12345678',
-        'HOST': 'users.cakuaki1ojoc.us-east-2.rds.amazonaws.com',
+        'HOST': 'users.crpxa8c479ye.us-east-2.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
 
-AWS_ACCESS_KEY_ID = 'AKIAYGQSQOMC3FO3EGHT'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'usersresume'
+AWS_ACCESS_KEY_ID = 'AKIAURQZT2XIRIFUCAWW'
+AWS_SECRET_ACCESS_KEY = '3e8eZaJWgA8r010WxqZ//MBWnQb0EFy+bidigQvS'
+AWS_STORAGE_BUCKET_NAME = 'usersresumes'
 AWS_S3_REGION_NAME = 'us-east-2'  # e.g., 'us-east-1'
 AWS_DEFAULT_ACL = 'public-read'
 AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
