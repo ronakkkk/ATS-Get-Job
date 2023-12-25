@@ -1,3 +1,5 @@
+In a team of 4 build a ATS Job System that helps job seeker to find jobs based on it's resume with better search result and with a better chance to get a job.
+
 Prototype Images:
 1. Sign Up: User data is stored in RDS.
    
